@@ -55,8 +55,8 @@ class GGI_edge_properties(db.Model):
 	property_value = db.Column(db.String(255))
 
 go_modules = db.Table('ensembl_go',
-    db.Column('ensembl_id', db.Integer, db.ForeignKey('ensembl.id'), primary_key=True),
-    db.Column('geneontology_id', db.Integer, db.ForeignKey('geneontology.id'), primary_key=True)
+    db.Column('ensembl_id', db.BigInteger, db.ForeignKey('ensembl.id'), primary_key=True),
+    db.Column('geneontology_id', db.BigInteger, db.ForeignKey('geneontology.id'), primary_key=True)
 )
 
 class geneontology(db.Model):
