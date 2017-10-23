@@ -31,8 +31,8 @@ class GGI_node_properties(db.Model):
 
 	id = db.Column(db.BigInteger, primary_key=True)
 	ggi_node_id = db.Column(db.BigInteger, db.ForeignKey('ggi_node.id'))
-	property_name = db.Column(db.String)
-	property_value = db.Column(db.String)
+	property_name = db.Column(db.String, length=255)
+	property_value = db.Column(db.String, length=255)
 
 class GGI_edge(db.Model):
 	'''a gene-gene interaction edge in a GGI network'''
@@ -42,7 +42,7 @@ class GGI_edge(db.Model):
 	ggi_network_id = db.Column(db.BigInteger, db.ForeignKey('ggi_network.id'))
 	source = db.Column(db.BigInteger, db.ForeignKey('ggi_node.id'))
 	target = db.Column(db.BigInteger, db.ForeignKey('ggi_node.id'))
-	edgetype = db.Column(db.String)
+	edgetype = db.Column(db.String, length=255)
 	properties = db.relationship("ggi_edge_properties", backref='ggi_edge', lazy='dynamic')
 
 class GGI_edge_properties(db.Model):
@@ -51,8 +51,8 @@ class GGI_edge_properties(db.Model):
 
 	id = db.Column(db.BigInteger, primary_key=True)
 	ggi_edge_id = db.Column(db.BigInteger, db.ForeignKey('ggi_edge.id'))
-	property_name = db.Column(db.String)
-	property_value = db.Column(db.String)
+	property_name = db.Column(db.String, length=255)
+	property_value = db.Column(db.String, length=255)
 
 go_modules = db.Table('ensembl_go',
     db.Column('ensembl_id', db.Integer, db.ForeignKey('ensembl.id'), primary_key=True),
@@ -64,8 +64,8 @@ class geneontology(db.Model):
 	__tablename__='geneontology'
 
 	id = db.Column(db.BigInteger, primary_key=True)
-	system = db.Column(db.String)
-	category = db.Column(db.String)
+	system = db.Column(db.String, length=255)
+	category = db.Column(db.String, length=255)
 	population_hits = db.Column(db.Integer)
 	population_total = db.Column(db.Integer)
 	genes = db.relationship('Ensembl',secondary=go_modules, lazy='subquery',backref=db.backref('geneontology', lazy=True))
@@ -75,24 +75,24 @@ class Ensembl(db.Model):
 	__tablename__='ensembl'
 
 	id = db.Column(db.BigInteger, primary_key=True)
-	seqname = db.Column(db.String)
-	source = db.Column(db.String)
-	feature = db.Column(db.String)
+	seqname = db.Column(db.String, length=255)
+	source = db.Column(db.String, length=255)
+	feature = db.Column(db.String, length=255)
 	start = db.Column(db.BigInteger)
 	end = db.Column(db.BigInteger)
 	score = db.Column(db.Float)
-	strand = db.Column(db.String)
-	frame = db.Column(db.String)
-	gene_id = db.Column(db.String)
-	gene_name = db.Column(db.String)
-	gene_source = db.Column(db.String)
-	gene_biotype = db.Column(db.String)
-	transcript_id = db.Column(db.String)
-	transcript_name = db.Column(db.String)
-	transcript_source = db.Column(db.String)
+	strand = db.Column(db.String, length=255)
+	frame = db.Column(db.String, length=255)
+	gene_id = db.Column(db.String, length=255)
+	gene_name = db.Column(db.String, length=255)
+	gene_source = db.Column(db.String, length=255)
+	gene_biotype = db.Column(db.String, length=255)
+	transcript_id = db.Column(db.String, length=255)
+	transcript_name = db.Column(db.String, length=255)
+	transcript_source = db.Column(db.String, length=255)
 	exon_number = db.Column(db.Float)
-	exon_id = db.Column(db.String)
-	tag = db.Column(db.String)
-	ccds_id = db.Column(db.String)
-	protein_id = db.Column(db.String)
-	transcript_biotype = db.Column(db.String)
+	exon_id = db.Column(db.String, length=255)
+	tag = db.Column(db.String, length=255)
+	ccds_id = db.Column(db.String, length=255)
+	protein_id = db.Column(db.String, length=255)
+	transcript_biotype = db.Column(db.String, length=255)
