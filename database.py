@@ -9,7 +9,7 @@ class ggi_network(db.Model):
 
 	id = db.Column(db.BigInteger, primary_key=True)
 	properties = db.Column(db.BLOB)
-	edges = db.relationship("ggi_edge", backref='ggi_network', lazy='dynamic')
+	edges = db.relationship("ggi_edge", foreign_keys='ggi_edge.ggi_network_id', backref='ggi_network', lazy='dynamic')
 	nodes = db.relationship("ggi_node", backref='ggi_network', lazy='dynamic')
 	#user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	#project_id = db.Column(db.Integer, db.ForeignKey('project.id'))
@@ -23,9 +23,13 @@ class ggi_node(db.Model):
 	ggi_network_id = db.Column(db.BigInteger, db.ForeignKey('ggi_network.id'))
 	ensembl_id = db.Column(db.BigInteger, db.ForeignKey('ensembl.id'))
 	properties = db.relationship("ggi_node_properties", backref='ggi_node', lazy='dynamic')
-	edges = db.relationship("ggi_edge", lazy='dynamic')
+	edges_in = db.relationship("ggi_edge", foreign_keys='ggi_edge.source', lazy='dynamic')
+	edges_out = db.relationship("ggi_edge",foreign_keys='ggi_edge.target', lazy='dynamic')
+	
+	def edges(self):
+		return self.edges_in.union(self.edges_out)
 
-class GGI_node_properties(db.Model):
+class ggi_node_properties(db.Model):
 	'''properties about a node in a GGI network'''
 	__tablename__='ggi_node_property'
 
@@ -34,7 +38,7 @@ class GGI_node_properties(db.Model):
 	property_name = db.Column(db.String(255))
 	property_value = db.Column(db.String(255))
 
-class GGI_edge(db.Model):
+class ggi_edge(db.Model):
 	'''a gene-gene interaction edge in a GGI network'''
 	__tablename__='ggi_edge'
 
@@ -42,10 +46,12 @@ class GGI_edge(db.Model):
 	ggi_network_id = db.Column(db.BigInteger, db.ForeignKey('ggi_network.id'))
 	source = db.Column(db.BigInteger, db.ForeignKey('ggi_node.id'))
 	target = db.Column(db.BigInteger, db.ForeignKey('ggi_node.id'))
+	source_node = db.relationship("ggi_node", foreign_keys='ggi_edge.source', back_populates="edges_in")
+	target_node = db.relationship("ggi_node", foreign_keys='ggi_edge.target', back_populates="edges_out")
 	edgetype = db.Column(db.String(255))
 	properties = db.relationship("ggi_edge_properties", backref='ggi_edge', lazy='dynamic')
 
-class GGI_edge_properties(db.Model):
+class ggi_edge_properties(db.Model):
 	'''properties about a gene-gene interaction edge in a GGI network'''
 	__tablename__='ggi_edge_property'
 
@@ -68,9 +74,9 @@ class geneontology(db.Model):
 	category = db.Column(db.String(255))
 	population_hits = db.Column(db.Integer)
 	population_total = db.Column(db.Integer)
-	genes = db.relationship('Ensembl',secondary=go_modules, lazy='subquery',backref=db.backref('geneontology', lazy=True))
+	genes = db.relationship('ensembl',secondary=go_modules, lazy='subquery',backref=db.backref('geneontology', lazy=True))
 
-class Ensembl(db.Model):
+class ensembl(db.Model):
 	'''a denormalized Ensembl database as output from pyensembl'''
 	__tablename__='ensembl'
 
