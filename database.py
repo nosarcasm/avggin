@@ -8,9 +8,12 @@ class ggi_network(db.Model):
 	__tablename__='ggi_network'
 
 	id = db.Column(db.BigInteger, primary_key=True)
-	properties = db.Column(db.BLOB)
-	edges = db.relationship("ggi_edge", foreign_keys='ggi_edge.ggi_network_id', backref='ggi_network', lazy='dynamic')
-	nodes = db.relationship("ggi_node", backref='ggi_network', lazy='dynamic')
+	properties = db.Column(db.String)
+	edges = db.relationship("ggi_edge", foreign_keys='ggi_edge.ggi_network_id', 
+	                        backref='ggi_network', lazy='dynamic',
+	                        cascade="all, delete-orphan")
+	nodes = db.relationship("ggi_node", backref='ggi_network', lazy='dynamic',
+	                        cascade="all, delete-orphan")
 	#user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	#project_id = db.Column(db.Integer, db.ForeignKey('project.id'))
 	#permissions = db.Column(db.String)
@@ -20,9 +23,13 @@ class ggi_node(db.Model):
 	__tablename__='ggi_node'
 
 	id = db.Column(db.BigInteger, primary_key=True)
-	ggi_network_id = db.Column(db.BigInteger, db.ForeignKey('ggi_network.id'))
+	ggi_network_id = db.Column(db.BigInteger, db.ForeignKey('ggi_network.id', 
+	                           ondelete="CASCADE"))
 	ensembl_id = db.Column(db.BigInteger, db.ForeignKey('ensembl.id'))
-	properties = db.relationship("ggi_node_properties", backref='ggi_node', lazy='dynamic')
+	gene = db.relationship("ensembl", foreign_keys="ggi_node.ensembl_id")
+	label = db.Column(db.String(255))
+	properties = db.relationship("ggi_node_properties", backref='ggi_node', lazy='dynamic',
+	                        cascade="all, delete-orphan")
 	edges_in = db.relationship("ggi_edge", foreign_keys='ggi_edge.source', lazy='dynamic')
 	edges_out = db.relationship("ggi_edge",foreign_keys='ggi_edge.target', lazy='dynamic')
 	
@@ -34,7 +41,8 @@ class ggi_node_properties(db.Model):
 	__tablename__='ggi_node_property'
 
 	id = db.Column(db.BigInteger, primary_key=True)
-	ggi_node_id = db.Column(db.BigInteger, db.ForeignKey('ggi_node.id'))
+	ggi_node_id = db.Column(db.BigInteger, db.ForeignKey('ggi_node.id', 
+	                           ondelete="CASCADE"))
 	property_name = db.Column(db.String(255))
 	property_value = db.Column(db.String(255))
 
@@ -43,20 +51,25 @@ class ggi_edge(db.Model):
 	__tablename__='ggi_edge'
 
 	id = db.Column(db.BigInteger, primary_key=True)
-	ggi_network_id = db.Column(db.BigInteger, db.ForeignKey('ggi_network.id'))
-	source = db.Column(db.BigInteger, db.ForeignKey('ggi_node.id'))
-	target = db.Column(db.BigInteger, db.ForeignKey('ggi_node.id'))
+	ggi_network_id = db.Column(db.BigInteger, db.ForeignKey('ggi_network.id', 
+	                           ondelete="CASCADE"))
+	source = db.Column(db.BigInteger, db.ForeignKey('ggi_node.id', 
+	                           ondelete="CASCADE"))
+	target = db.Column(db.BigInteger, db.ForeignKey('ggi_node.id', 
+	                           ondelete="CASCADE"))
 	source_node = db.relationship("ggi_node", foreign_keys='ggi_edge.source', back_populates="edges_in")
 	target_node = db.relationship("ggi_node", foreign_keys='ggi_edge.target', back_populates="edges_out")
 	edgetype = db.Column(db.String(255))
-	properties = db.relationship("ggi_edge_properties", backref='ggi_edge', lazy='dynamic')
+	properties = db.relationship("ggi_edge_properties", backref='ggi_edge', lazy='dynamic',
+	                        cascade="all, delete-orphan")
 
 class ggi_edge_properties(db.Model):
 	'''properties about a gene-gene interaction edge in a GGI network'''
 	__tablename__='ggi_edge_property'
 
 	id = db.Column(db.BigInteger, primary_key=True)
-	ggi_edge_id = db.Column(db.BigInteger, db.ForeignKey('ggi_edge.id'))
+	ggi_edge_id = db.Column(db.BigInteger, db.ForeignKey('ggi_edge.id', 
+	                           ondelete="CASCADE"))
 	property_name = db.Column(db.String(255))
 	property_value = db.Column(db.String(255))
 
