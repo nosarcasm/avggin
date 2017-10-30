@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+from flask import Flask, request, redirect, send_from_directory, Response, stream_with_context, url_for, render_template
+from flask_sqlalchemy import SQLAlchemy
+
+sqlalchemy_db = "mysql://some_db"
+flask_secret_key = ""
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = sqlalchemy_db
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.secret_key = flask_secret_key
+app.debug = True
+
+db = SQLAlchemy(app)
+
+# import a db_session to query db from other modules
+db_session = db.session
+
+from database import *
+
+@app.route('/')
+def hello_world():
+    return 'Hello, World!'
+
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    db_session.remove()
+
+if __name__=="__main__":
+	app.run(debug=True)
