@@ -2,6 +2,7 @@
 
 from __init__ import app, db
 from flask_sqlalchemy import SQLAlchemy
+import json
 
 class ggi_network(db.Model):
 	'''a gene-gene interaction network (contains nodes and edges)'''
@@ -17,6 +18,9 @@ class ggi_network(db.Model):
 	#user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 	#project_id = db.Column(db.Integer, db.ForeignKey('project.id'))
 	#permissions = db.Column(db.String)
+
+	def properties_dict(self):
+		return json.loads(str(self.properties).replace("'","\""))
 
 class ggi_node(db.Model):
 	'''a node in a GGI network'''
@@ -35,6 +39,10 @@ class ggi_node(db.Model):
 	
 	def edges(self):
 		return self.edges_in.union(self.edges_out)
+
+	def neighbors(self):
+		return sorted([a.source_node if a.source_node != self else a.target_node for a in self.edges().all()],
+		              key=lambda x:x.label)
 
 class ggi_node_properties(db.Model):
 	'''properties about a node in a GGI network'''
